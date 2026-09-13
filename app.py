@@ -1,5 +1,5 @@
 import sqlite3
-from flask import Flask, jsonify
+from flask import Flask, jsonify, render_template
 
 app = Flask(__name__)
 DB_NAME = "it_dashboard.db"
@@ -8,6 +8,11 @@ def get_db_connection():
     conn = sqlite3.connect(DB_NAME)
     conn.row_factory = sqlite3.Row  # Returns rows as dictionary-like objects
     return conn
+
+# index 
+@app.route('/')
+def index():
+    return render_template('index.html')
 
 # 1. Health Status Endpoint
 @app.route('/api/logs', methods=['GET'])

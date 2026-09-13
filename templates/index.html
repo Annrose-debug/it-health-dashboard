@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CYBER-OPS // IT Health & Security Command</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="cyber-grid-bg"></div>
+
+    <header class="hero-header">
+        <div class="header-content">
+            <span class="sub-tag">// SEC-OPS TERMINAL V2.4</span>
+            <h1>GRID_DIAGNOSTICS & THREAT_MATRIX</h1>
+            <p>Autonomous system health monitoring, brute-force auditing, and real-time incident escalation.</p>
+        </div>
+        <div class="telemetry-box">
+            <div class="status-pill active">
+                <span class="pulse-dot"></span> LIVE TELEMETRY
+            </div>
+            <span class="timestamp-live" id="clock">00:00:00</span>
+        </div>
+    </header>
+
+    <main class="dashboard-grid">
+        <!-- System Logs Panel -->
+        <section class="card wide-card">
+            <div class="card-header">
+                <h2>System Health Logs</h2>
+                <div class="search-wrapper">
+                    <input type="text" id="logSearch" placeholder="SEARCH ENDPOINTS..." onkeyup="filterLogs()">
+                </div>
+            </div>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>UID</th>
+                            <th>ENDPOINT_TARGET</th>
+                            <th>STATUS</th>
+                            <th>LATENCY</th>
+                            <th>TIMESTAMP</th>
+                        </tr>
+                    </thead>
+                    <tbody id="logs-table">
+                        <!-- Populated by JS -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Security Threats Panel -->
+        <section class="card">
+            <div class="card-header">
+                <h2>Brute-Force & Security Flags</h2>
+            </div>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>IP_ORIGIN</th>
+                            <th>FAILS</th>
+                            <th>ACTION</th>
+                        </tr>
+                    </thead>
+                    <tbody id="security-table">
+                        <!-- Populated by JS -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Active Support Tickets Panel -->
+        <section class="card">
+            <div class="card-header">
+                <h2>Incident Escalations</h2>
+            </div>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>TKT_ID</th>
+                            <th>ERROR_MESSAGE</th>
+                            <th>STATE</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tickets-table">
+                        <!-- Populated by JS -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        // Live clock ticker
+        setInterval(() => {
+            const now = new Date();
+            document.getElementById('clock').innerText = now.toTimeString().split(' ')[0];
+        }, 1000);
+
+        let allLogs = [];
+
+        async function fetchDashboardData() {
+            try {
+                // Fetch System Logs
+                const logsRes = await fetch('/api/logs');
+                allLogs = await logsRes.json();
+                renderLogs(allLogs);
+
+                // Fetch Security Alerts
+                const secRes = await fetch('/api/security');
+                const security = await secRes.json();
+                const secTable = document.getElementById('security-table');
+                secTable.innerHTML = security.length ? security.map(sec => `
+                    <tr>
+                        <td><code>${sec.ip}</code></td>
+                        <td><strong>${sec.attempts}</strong></td>
+                        <td><span class="badge danger">LOCKED_OUT</span></td>
+                    </tr>
+                `).join('') : `<tr><td colspan="3" class="empty-state">NO SECURITY THREATS LOGGED.</td></tr>`;
+
+                // Fetch Support Tickets
+                const tickRes = await fetch('/api/tickets');
+                const tickets = await tickRes.json();
+                const tickTable = document.getElementById('tickets-table');
+                tickTable.innerHTML = tickets.length ? tickets.map(t => `
+                    <tr>
+                        <td>#${t.ticket_id || t.id}</td>
+                        <td>${t.error_message || t.issue || 'Critical Exception'}</td>
+                        <td><span class="badge warning">PENDING_FIX</span></td>
+                    </tr>
+                `).join('') : `<tr><td colspan="3" class="empty-state">SYSTEMS NOMINAL. NO TICKETS.</td></tr>`;
+
+            } catch (err) {
+                console.error('Telemetry sync failure:', err);
+            }
+        }
+
+        function renderLogs(logs) {
+            const logsTable = document.getElementById('logs-table');
+            logsTable.innerHTML = logs.map(log => `
+                <tr>
+                    <td>#${log.id}</td>
+                    <td><code>${log.endpoint}</code></td>
+                    <td><span class="badge ${log.status_code === 200 ? 'success' : 'danger'}">${log.status_code}</span></td>
+                    <td>${log.latency}s</td>
+                    <td>${log.timestamp}</td>
+                </tr>
+            `).join('');
+        }
+
+        function filterLogs() {
+            const query = document.getElementById('logSearch').value.toLowerCase();
+            const filtered = allLogs.filter(log => log.endpoint.toLowerCase().includes(query));
+            renderLogs(filtered);
+        }
+
+        fetchDashboardData();
+        setInterval(fetchDashboardData, 5000);
+    </script>
+</body>
+</html>
