@@ -242,3 +242,70 @@ code {
     font-style: italic;
     letter-spacing: 1px;
 }
+/* Day 8 KPI Summary Cards Styling */
+.kpi-container {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 20px;
+    max-width: 1400px;
+    margin: 0 auto 25px auto;
+}
+
+@media (min-width: 768px) {
+    .kpi-container {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+.kpi-card {
+    background-color: #12141a;
+    border: 1px solid #1e222b;
+    border-radius: 12px;
+    padding: 20px 24px;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    position: relative;
+    overflow: hidden;
+}
+
+.kpi-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; width: 3px; height: 100%;
+    background-color: #f59e0b;
+}
+
+.kpi-label {
+    font-size: 0.7rem;
+    color: #64748b;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+}
+
+.kpi-value {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: #f8fafc;
+}
+
+.kpi-value.warning {
+    color: #fbbf24;
+}
+
+.kpi-value.danger {
+    color: #f87171;
+}
+
+.kpi-sub {
+    font-size: 0.72rem;
+    letter-spacing: 0.5px;
+    font-weight: 700;
+}
+
+.text-success { color: #34d399; }
+.text-warning { color: #fbbf24; }
+.text-danger { color: #f87171; }

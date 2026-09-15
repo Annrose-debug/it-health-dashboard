@@ -1,6 +1,6 @@
 import time
-import sqlite3
 import requests
+import sqlite3
 from datetime import datetime
 
 # 1. Configuration & Target Endpoints
@@ -16,6 +16,10 @@ DB_NAME = "it_dashboard.db"
 def init_db():
     conn = sqlite3.connect(DB_NAME)
     cursor = conn.cursor()
+    
+    # Drop old tables to match the new multi-target telemetry schema
+    cursor.execute('DROP TABLE IF EXISTS system_logs')
+    cursor.execute('DROP TABLE IF EXISTS support_tickets')
     
     # Table 1: System Check Logs
     cursor.execute('''
@@ -44,7 +48,7 @@ def init_db():
     
     conn.commit()
     conn.close()
-
+    
 # 3. Ticket Escalation Logic
 def create_support_ticket(cursor, service_name, status_code, status_label):
     # Check if an OPEN ticket already exists for this service to prevent spamming

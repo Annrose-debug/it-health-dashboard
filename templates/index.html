@@ -12,7 +12,7 @@
 
     <header class="hero-header">
         <div class="header-content">
-            <span class="sub-tag">// SEC-OPS TERMINAL V2.4</span>
+            <span class="sub-tag">// SEC-OPS TERMINAL V2.5</span>
             <h1>GRID_DIAGNOSTICS & THREAT_MATRIX</h1>
             <p>Autonomous system health monitoring, brute-force auditing, and real-time incident escalation.</p>
         </div>
@@ -23,6 +23,25 @@
             <span class="timestamp-live" id="clock">00:00:00</span>
         </div>
     </header>
+
+    <!-- NEW: Day 8 KPI Summary Cards Bar -->
+    <section class="kpi-container">
+        <div class="kpi-card">
+            <span class="kpi-label">SYSTEM UPTIME</span>
+            <span class="kpi-value" id="kpi-uptime">99.8%</span>
+            <span class="kpi-sub text-success">NOMINAL STATUS</span>
+        </div>
+        <div class="kpi-card">
+            <span class="kpi-label">ACTIVE THREATS</span>
+            <span class="kpi-value warning" id="kpi-threats">0</span>
+            <span class="kpi-sub text-warning">BRUTE-FORCE FLAGGED</span>
+        </div>
+        <div class="kpi-card">
+            <span class="kpi-label">OPEN INCIDENTS</span>
+            <span class="kpi-value danger" id="kpi-tickets">0</span>
+            <span class="kpi-sub text-danger">PENDING RESOLUTION</span>
+        </div>
+    </section>
 
     <main class="dashboard-grid">
         <!-- System Logs Panel -->
@@ -110,9 +129,18 @@
                 allLogs = await logsRes.json();
                 renderLogs(allLogs);
 
+                // Calculate Uptime based on 200 status codes vs total
+                if (allLogs.length > 0) {
+                    const successCount = allLogs.filter(l => l.status_code === 200).length;
+                    const uptimePct = ((successCount / allLogs.length) * 100).toFixed(1);
+                    document.getElementById('kpi-uptime').innerText = uptimePct + '%';
+                }
+
                 // Fetch Security Alerts
                 const secRes = await fetch('/api/security');
                 const security = await secRes.json();
+                document.getElementById('kpi-threats').innerText = security.length;
+                
                 const secTable = document.getElementById('security-table');
                 secTable.innerHTML = security.length ? security.map(sec => `
                     <tr>
@@ -125,6 +153,8 @@
                 // Fetch Support Tickets
                 const tickRes = await fetch('/api/tickets');
                 const tickets = await tickRes.json();
+                document.getElementById('kpi-tickets').innerText = tickets.length;
+
                 const tickTable = document.getElementById('tickets-table');
                 tickTable.innerHTML = tickets.length ? tickets.map(t => `
                     <tr>
