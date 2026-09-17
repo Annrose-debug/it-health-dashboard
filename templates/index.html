@@ -113,7 +113,7 @@
         </section>
     </main>
 
-    <script>
+   <script>
         // Live clock ticker
         setInterval(() => {
             const now = new Date();
@@ -129,9 +129,9 @@
                 allLogs = await logsRes.json();
                 renderLogs(allLogs);
 
-                // Calculate Uptime based on 200 status codes vs total
+                // Calculate Uptime based on HEALTHY status vs total
                 if (allLogs.length > 0) {
-                    const successCount = allLogs.filter(l => l.status_code === 200).length;
+                    const successCount = allLogs.filter(l => l.status_label === 'HEALTHY').length;
                     const uptimePct = ((successCount / allLogs.length) * 100).toFixed(1);
                     document.getElementById('kpi-uptime').innerText = uptimePct + '%';
                 }
@@ -153,14 +153,17 @@
                 // Fetch Support Tickets
                 const tickRes = await fetch('/api/tickets');
                 const tickets = await tickRes.json();
-                document.getElementById('kpi-tickets').innerText = tickets.length;
+                
+                // Count only OPEN tickets for the KPI counter
+                const openTickets = tickets.filter(t => t.status === 'OPEN');
+                document.getElementById('kpi-tickets').innerText = openTickets.length;
 
                 const tickTable = document.getElementById('tickets-table');
                 tickTable.innerHTML = tickets.length ? tickets.map(t => `
                     <tr>
-                        <td>#${t.ticket_id || t.id}</td>
-                        <td>${t.error_message || t.issue || 'Critical Exception'}</td>
-                        <td><span class="badge warning">PENDING_FIX</span></td>
+                        <td>#${t.ticket_id}</td>
+                        <td><strong>${t.service_name}</strong>: ${t.issue_description}</td>
+                        <td><span class="badge ${t.status === 'OPEN' ? 'danger' : 'success'}">${t.status}</span></td>
                     </tr>
                 `).join('') : `<tr><td colspan="3" class="empty-state">SYSTEMS NOMINAL. NO TICKETS.</td></tr>`;
 
@@ -174,9 +177,9 @@
             logsTable.innerHTML = logs.map(log => `
                 <tr>
                     <td>#${log.id}</td>
-                    <td><code>${log.endpoint}</code></td>
-                    <td><span class="badge ${log.status_code === 200 ? 'success' : 'danger'}">${log.status_code}</span></td>
-                    <td>${log.latency}s</td>
+                    <td><strong>${log.service_name}</strong><br><small style="color: #64748b;">${log.url}</small></td>
+                    <td><span class="badge ${log.status_label === 'HEALTHY' ? 'success' : 'danger'}">${log.status_label} (${log.status_code})</span></td>
+                    <td>${log.response_time_ms}ms</td>
                     <td>${log.timestamp}</td>
                 </tr>
             `).join('');
@@ -184,12 +187,11 @@
 
         function filterLogs() {
             const query = document.getElementById('logSearch').value.toLowerCase();
-            const filtered = allLogs.filter(log => log.endpoint.toLowerCase().includes(query));
+            const filtered = allLogs.filter(log => log.service_name.toLowerCase().includes(query) || log.url.toLowerCase().includes(query));
             renderLogs(filtered);
         }
 
+        // Initial fetch and poll every 5 seconds
         fetchDashboardData();
         setInterval(fetchDashboardData, 5000);
     </script>
-</body>
-</html>
