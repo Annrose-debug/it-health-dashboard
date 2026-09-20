@@ -77,7 +77,7 @@ To run this dashboard locally on your machine, follow these steps:
 Clone the Repository:
 
 Bash
-git clone [https://github.com/YOUR_USERNAME/it-health-security-dashboard.git](https://github.com/YOUR_USERNAME/it-health-security-dashboard.git)
+git clone [https://github.com/Annrose-debug/it-health-dashboard](https://github.com/Annrose-debug/it-health-dashboard))
 cd it-health-security-dashboard
 Verify Prerequisites:
 Ensure you have Python installed along with Flask (pip install flask).
