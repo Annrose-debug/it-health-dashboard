@@ -89,14 +89,17 @@ Start Terminal 1 (Telemetry Background Worker):
 
 Bash
 python monitor.py
+
 Start Terminal 2 (Security Threat Parser Engine):
 
 Bash
 python security_parser.py
+
 Start Terminal 3 (Flask REST API Server):
 
 Bash
 python app.py
+
 Access the Command Center:
 Open your browser and navigate to:
 
