@@ -1,17 +1,17 @@
-# ⚡ Cyber-Ops: Autonomous IT Health & Security Dashboard
+# Cyber-Ops: Autonomous IT Health & Security Dashboard
 
 A full-stack, real-time Security Operations Center (SOC) command center built during a rigorous 14-day engineering challenge. Designed with an **Obsidian & Amber** tactical aesthetic, this platform provides multi-target endpoint telemetry, automated incident escalation, and real-time log-based brute-force threat detection with interactive remediation controls.
 
 ---
 
-## 🎨 Aesthetic & Design Philosophy
+## Aesthetic & Design Philosophy
 * **Palette:** Deep obsidian dark-mode backgrounds (`#0a0a0a` / `#121212`) paired with high-contrast tactical amber accents (`#eab308`) and crimson alert badges (`#ef4444`).
 * **Typography:** Monospaced data readouts using `'JetBrains Mono'` paired with bold headers in `'Syne'`.
 * **Layout:** CSS Grid dashboard layout optimized for high-density monitoring, live status counters, and asynchronous data updates.
 
 ---
 
-## 🛠️ Technology Stack
+## Technology Stack
 * **Backend:** Python, Flask, SQLite (`it_dashboard.db`)
 * **Background Automation:** Multi-process Python workers (`monitor.py`, `security_parser.py`)
 * **Frontend:** HTML5, CSS3 (Custom Cyber Grid Theme), Asynchronous JavaScript (`fetch` API polling)
@@ -19,7 +19,7 @@ A full-stack, real-time Security Operations Center (SOC) command center built du
 
 ---
 
-## 🚀 Core Features & Architecture
+## Core Features & Architecture
 
                    [Target Endpoints]
                            │
@@ -49,7 +49,7 @@ A full-stack, real-time Security Operations Center (SOC) command center built du
 
 ---
 
-## 📁 Project Structure
+## Project Structure
 
 ```text
 it-health-dashboard/
@@ -62,14 +62,16 @@ it-health-dashboard/
 ├── templates/
 │   └── index.html          # Frontend command center UI & JS polling logic
 └── README.md               # Project documentation
-⚙️ Database Schema
+```
+
+Database Schema
 system_logs: Stores historical endpoint ping telemetry (UID, service name, target URL, status code, latency in ms, status label, timestamp).
 
 support_tickets: Tracks automated and manual incident escalations (ticket ID, service name, issue description, severity, status (OPEN / RESOLVED), creation timestamp).
 
 security_alerts: Audits brute-force threats (alert ID, IP address, failed attempts count, alert level (CRITICAL), timestamp).
 
-🚀 Quick Start Setup & Installation
+Quick Start Setup & Installation
 To run this dashboard locally on your machine, follow these steps:
 
 Clone the Repository:
@@ -97,5 +99,6 @@ Open your browser and navigate to:
 
 Plaintext
 [http://127.0.0.1:5000/](http://127.0.0.1:5000/)
-🛡️ License
+
+License
 This project is open-source and built as a portfolio demonstration of full-stack engineering and systems automation principles.
