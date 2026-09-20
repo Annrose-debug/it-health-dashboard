@@ -78,8 +78,11 @@ Clone the Repository:
 
 Bash
 git clone [https://github.com/Annrose-debug/it-health-dashboard](https://github.com/Annrose-debug/it-health-dashboard))
+
 cd it-health-security-dashboard
+
 Verify Prerequisites:
+
 Ensure you have Python installed along with Flask (pip install flask).
 
 Start Terminal 1 (Telemetry Background Worker):
