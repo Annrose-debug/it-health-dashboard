@@ -19,6 +19,13 @@ def init_security_table():
             timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
         )
     ''')
+    
+    # Safely ensure the alert_level column exists even if table was pre-created
+    try:
+        cursor.execute("ALTER TABLE security_alerts ADD COLUMN alert_level TEXT")
+    except sqlite3.OperationalError:
+        pass  # Column already exists, safe to ignore
+
     conn.commit()
     conn.close()
 

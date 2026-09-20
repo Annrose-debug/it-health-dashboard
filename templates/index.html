@@ -6,6 +6,35 @@
     <title>CYBER-OPS // IT Health & Security Command</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+    <style>
+        /* Action Button Styling */
+        .action-btn {
+            background: rgba(234, 179, 8, 0.1);
+            border: 1px solid rgba(234, 179, 8, 0.4);
+            color: #eab308;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            padding: 4px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .action-btn:hover {
+            background: rgba(234, 179, 8, 0.25);
+            border-color: #eab308;
+            box-shadow: 0 0 10px rgba(234, 179, 8, 0.3);
+        }
+        .action-btn.danger {
+            background: rgba(239, 68, 68, 0.1);
+            border-color: rgba(239, 68, 68, 0.4);
+            color: #ef4444;
+        }
+        .action-btn.danger:hover {
+            background: rgba(239, 68, 68, 0.25);
+            border-color: #ef4444;
+            box-shadow: 0 0 10px rgba(239, 68, 68, 0.3);
+        }
+    </style>
 </head>
 <body>
     <div class="cyber-grid-bg"></div>
@@ -24,11 +53,11 @@
         </div>
     </header>
 
-    <!-- NEW: Day 8 KPI Summary Cards Bar -->
+    <!-- Executive KPI Summary Cards Bar -->
     <section class="kpi-container">
         <div class="kpi-card">
             <span class="kpi-label">SYSTEM UPTIME</span>
-            <span class="kpi-value" id="kpi-uptime">99.8%</span>
+            <span class="kpi-value" id="kpi-uptime">100.0%</span>
             <span class="kpi-sub text-success">NOMINAL STATUS</span>
         </div>
         <div class="kpi-card">
@@ -81,6 +110,7 @@
                         <tr>
                             <th>IP_ORIGIN</th>
                             <th>FAILS</th>
+                            <th>STATUS</th>
                             <th>ACTION</th>
                         </tr>
                     </thead>
@@ -103,6 +133,7 @@
                             <th>TKT_ID</th>
                             <th>ERROR_MESSAGE</th>
                             <th>STATE</th>
+                            <th>ACTION</th>
                         </tr>
                     </thead>
                     <tbody id="tickets-table">
@@ -113,7 +144,7 @@
         </section>
     </main>
 
-   <script>
+    <script>
         // Live clock ticker
         setInterval(() => {
             const now = new Date();
@@ -147,8 +178,11 @@
                         <td><code>${sec.ip}</code></td>
                         <td><strong>${sec.attempts}</strong></td>
                         <td><span class="badge danger">LOCKED_OUT</span></td>
+                        <td>
+                            <button class="action-btn danger" onclick="dismissAlert(${sec.alert_id})">DISMISS</button>
+                        </td>
                     </tr>
-                `).join('') : `<tr><td colspan="3" class="empty-state">NO SECURITY THREATS LOGGED.</td></tr>`;
+                `).join('') : `<tr><td colspan="4" class="empty-state">NO SECURITY THREATS LOGGED.</td></tr>`;
 
                 // Fetch Support Tickets
                 const tickRes = await fetch('/api/tickets');
@@ -164,8 +198,13 @@
                         <td>#${t.ticket_id}</td>
                         <td><strong>${t.service_name}</strong>: ${t.issue_description}</td>
                         <td><span class="badge ${t.status === 'OPEN' ? 'danger' : 'success'}">${t.status}</span></td>
+                        <td>
+                            ${t.status === 'OPEN' 
+                                ? `<button class="action-btn" onclick="resolveTicket(${t.ticket_id})">RESOLVE</button>` 
+                                : '<span style="color:#64748b;">CLOSED</span>'}
+                        </td>
                     </tr>
-                `).join('') : `<tr><td colspan="3" class="empty-state">SYSTEMS NOMINAL. NO TICKETS.</td></tr>`;
+                `).join('') : `<tr><td colspan="4" class="empty-state">SYSTEMS NOMINAL. NO TICKETS.</td></tr>`;
 
             } catch (err) {
                 console.error('Telemetry sync failure:', err);
@@ -191,7 +230,34 @@
             renderLogs(filtered);
         }
 
+        // Action Handlers
+        async function resolveTicket(ticketId) {
+            try {
+                const response = await fetch(`/api/tickets/${ticketId}/resolve`, { method: 'POST' });
+                const result = await response.json();
+                if (result.success) {
+                    fetchDashboardData();
+                }
+            } catch (err) {
+                console.error('Failed to resolve ticket:', err);
+            }
+        }
+
+        async function dismissAlert(alertId) {
+            try {
+                const response = await fetch(`/api/security/${alertId}/dismiss`, { method: 'POST' });
+                const result = await response.json();
+                if (result.success) {
+                    fetchDashboardData();
+                }
+            } catch (err) {
+                console.error('Failed to dismiss alert:', err);
+            }
+        }
+
         // Initial fetch and poll every 5 seconds
         fetchDashboardData();
         setInterval(fetchDashboardData, 5000);
     </script>
+</body>
+</html>

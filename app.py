@@ -14,7 +14,7 @@ def get_db_connection():
 def index():
     return render_template('index.html')
 
-# 1. Health Status Logs Endpoint (Mapped to new worker schema)
+# 1. Health Status Logs Endpoint
 @app.route('/api/logs', methods=['GET'])
 def get_logs():
     conn = get_db_connection()
@@ -66,6 +66,26 @@ def get_security():
     alerts = cursor.fetchall()
     conn.close()
     return jsonify([dict(alert) for alert in alerts])
+
+# 4. Resolve Incident Ticket Endpoint (NEW - Day 12)
+@app.route('/api/tickets/<int:ticket_id>/resolve', methods=['POST'])
+def resolve_ticket(ticket_id):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("UPDATE support_tickets SET status = 'RESOLVED' WHERE ticket_id = ?", (ticket_id,))
+    conn.commit()
+    conn.close()
+    return jsonify({"success": True, "message": f"Ticket #{ticket_id} resolved."})
+
+# 5. Dismiss Security Flag Endpoint (NEW - Day 12)
+@app.route('/api/security/<int:alert_id>/dismiss', methods=['POST'])
+def dismiss_security(alert_id):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("DELETE FROM security_alerts WHERE alert_id = ?", (alert_id,))
+    conn.commit()
+    conn.close()
+    return jsonify({"success": True, "message": f"Security alert #{alert_id} dismissed."})
 
 if __name__ == '__main__':
     print("Starting Flask REST API server on http://127.0.0.1:5000...")
